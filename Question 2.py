@@ -10,7 +10,7 @@ G0 = [[1, 1, 0, 1],
       [0, 0, 1, 0],
       [0, 0, 0, 1]]
 
-# H0 that detects if a bit in the codeword has an error
+# H0 that detects if a bit in the codeword has an error and returns in binary the position of the bit.
 
 H0 = [[1, 0, 1, 0, 1, 0, 1],
       [0, 1, 1, 0, 0, 1, 1],
@@ -30,7 +30,6 @@ H = np.array(H0)
 R = np.array(R0)
 
 """Fuctions section"""
-
 
 # The word is going to be considered a string to easily enter and change the values even with 0's at the beginning
 
