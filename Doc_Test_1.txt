@@ -1,0 +1,11 @@
+Hamming code is a type of error-correcting code that is commonly used in digital communication systems to detect and correct errors in transmitted data. It was developed by American mathematician Richard Hamming in the 1950s.
+
+Hamming code works by adding redundant bits to the data being transmitted. These redundant bits are called parity bits, and they are calculated based on the data bits in such a way that if any single bit in the transmitted data is flipped (due to noise or other interference), the receiver can use the parity bits to determine the location of the error and correct it.
+
+To understand how this works, let's consider an example. Suppose we have a 7-bit data word that we want to transmit using Hamming code. To create the Hamming code for this data word, we would first add 3 parity bits to the data word, giving us a 10-bit codeword. The positions of the parity bits are chosen such that they are not at the same position as any of the data bits.
+
+Next, we would calculate the values of the parity bits based on the data bits. This is done using a simple rule: the parity bit in a given position is set to 1 if the total number of 1s in the data bits that it covers is odd, and 0 if the total number of 1s is even. For example, if the first parity bit covers the data bits at positions 1, 2, and 4, and the values of these bits are 1, 0, and 1, respectively, then the value of the first parity bit would be 1 (since there are an odd number of 1s).
+
+When the transmitted codeword is received, the receiver can use the same rule to recalculate the values of the parity bits. If the received codeword has any errors, the calculated parity bits will not match the received parity bits, and the receiver can use this information to determine the location of the error and correct it.
+
+Overall, Hamming code is a simple yet effective way to detect and correct errors in transmitted data, and it has played a crucial role in the development of reliable digital communication systems.

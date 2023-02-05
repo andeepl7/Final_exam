@@ -1,0 +1,9 @@
+Reed Solomon code is a type of error-correcting code that is widely used in digital communication systems for its ability to correct errors and protect data from corruption. It was invented by Irving Reed and Gustave Solomon in 1960, and it is named after them.
+
+Reed Solomon code works by encoding data into polynomials and evaluating them at specific points. The resulting values are the codeword, which can be transmitted or stored. At the receiver end, the values are re-evaluated, and if there are any errors in the transmission, they can be corrected by finding the polynomial that best fits the received values.
+
+The key to the Reed Solomon code's ability to correct errors lies in its use of Galois Field (also known as Finite Field) mathematics. Galois Field is a mathematical system that has a finite number of elements, and it can be used to create a mapping between polynomials and the values they represent. This mapping is what allows the Reed Solomon code to detect and correct errors in transmitted data.
+
+Reed Solomon code is commonly used in many digital communication systems, including digital television (DTV), digital versatile discs (DVDs), and compact discs (CDs). Its ability to correct multiple errors makes it well-suited for use in communication systems that are subject to high levels of noise or other forms of interference.
+
+In conclusion, Reed Solomon code is a powerful error-correction technique that has proven to be essential in many digital communication systems. Its ability to detect and correct errors, combined with its mathematical elegance, has made it a popular choice for data protection and error correction in a wide range of applications.

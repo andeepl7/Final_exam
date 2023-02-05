@@ -1,81 +1,120 @@
-from collections import defaultdict
-from gensim import corpora
-from gensim import models
-from gensim import similarities
-from gensim.test.utils import get_tmpfile
+import math
+
+""" READ DOCUMENTS and FORMATTING SECTION """
+#This function opens a document(plain text .txt) return all text.
+def getting_text(document_to_compare):
+    try:
+        with open(document_to_compare) as D:
+            text = D.read()
+            return text
+    except:
+        raise TypeError("This document cannot be read it")
+
+#This function gave the right format to the text, removing special characters, lowercase and splitting the text into
+#words.
+def formatting_text(text):
+    text_new = text
+    characters_to_replace = ['\"', '-', '.', '!', ',','(',')',':']
+    for char in characters_to_replace:
+        text_new = text_new.replace(char, ' ')
+        text_new = text_new.lower()
+    word_list = text_new.split()
+    return word_list
+
+#This functiong count the unique words per document to compare.
+def unique_word_frequency(word_list):
+    dic_uwords = {}
+    for new_word in word_list:
+        if new_word in dic_uwords:
+            dic_uwords[new_word] = dic_uwords[new_word] + 1
+        else:
+            dic_uwords[new_word] = 1
+    return dic_uwords
+
+""" DISTANCE CALCULATIONS """
+#This function calculates the dotproduct distance between two documents.
+def dotproduct_distance(dict_1, dict_2):
+    dotproduct = 0.0
+    for key in dict_1:
+        if key in dict_2:
+            dotproduct += (dict_1[key] * dict_2[key])
+    return dotproduct
+
+#This function calculates the euclidean distance between two documents.
+def euclidean_distance(dict_1, dict_2):
+    dist = 0.0
+    for key in dict_1:
+        if key in dict_2:
+            dist += math.pow((dict_1[key] - dict_2[key]), 2)
+    return math.sqrt(dist)
+
+#These functions calculate the cosine distance between two documents.
+#Euclidean lengths and cosine distance
+def v_magnitude(d):
+    return math.sqrt(sum([math.pow(v, 2) for k, v in d.items()]))
+
+def cosine_distance(dict1, dict2):
+    return dotproduct_distance(dict1, dict2)/(v_magnitude(dict1)*v_magnitude(dict2))
+
+"""PRINTING RESULTS"""
+
+#This function gets the dictionary of unique words per document.
+def getting_dicts(document):
+    all_text = getting_text(document)
+    text_format = formatting_text(all_text)
+    doc_dict = unique_word_frequency(text_format)
+    return doc_dict
+
+#In order to test our functions, the testing will be perform with 3 documents, where the first one is compared with the
+#other two documents.
+
+#Callable function
+metric_computation = {'dotproduct': dotproduct_distance,
+          'euclidean': euclidean_distance,
+          'cosine': cosine_distance
+          }
+
+#The principal document is call reference document, the other two documents are auxiliar
+def test_doc_similarity(ref_doc,aux_doc,metric):
+    ref_dict = getting_dicts(ref_doc)
+    aux_dict= getting_dicts(aux_doc)
+    return metric_computation[metric](ref_dict, aux_dict)
+
+#Sort results in descending order
+def sort_dict(d, reverse):
+    return sorted(d.items(), key=lambda x: x[1], reverse=reverse)
+
+#Function to print the number of unique words and the similarity of the text and the results of the
+#documents similarities
+def print_info_docs(doc1,doc2,doc3):
+    documents_to_compare= doc1,doc2,doc3
+    for doc in documents_to_compare:
+        dct = getting_dicts(doc)
+        unique_words = len(dct)
+        print(f"Your file: {doc} got {unique_words} unique words")
+        print('-' *50)
+    ref_doc = doc1
+    aux_docs = {'Doc1': doc1, 'Doc2': doc2, 'Doc3': doc3}
+    results_dotproduct = {}
+    results_euclidean = {}
+    results_cosine = {}
+    for k, v in aux_docs.items():
+        results_dotproduct[k] = test_doc_similarity(ref_doc, v, 'dotproduct')
+        results_euclidean[k] = test_doc_similarity(ref_doc, v, 'euclidean')
+        results_cosine[k] = test_doc_similarity(ref_doc, v, 'cosine')
+    print('DOT PRODUCT')
+    print(sort_dict(results_dotproduct, reverse=True))
+    print('EUCLIDEAN')
+    print(sort_dict(results_euclidean, reverse=False))
+    print('COSINE')
+    print(sort_dict(results_cosine, reverse=True))
+
+"""Testing Section """
+
+document1 = "Doc_Test_1.txt"
+document2 = "Doc_Test_2.txt"
+document3 = "Doc_Test_3.txt"
+
+print_info_docs(document1,document2,document3)
 
 
-def TextDocumentSimilarity(corpus_documents, query_document):
-    """
-    Given a text corpus and a search document, this function:
-
-    1) computes a dictionary of words for the given text corpus, and
-
-    2) provides a list of documents and their similarity with the given
-    search document (sorted in descending order).
-
-    Expected parameters:
-    corpus_documents:   A text corpus, represented as a list of strings.
-    query_document:     A text document serving as a search document, represented as a string.
-
-    """
-
-    ###### CREATING THE TEXT CORPUS ######
-
-    # Lowercase and tokenize each document of the given text corpus by using whitespace as delimiter for splitting.
-    corpus_texts = [document.lower().split() for document in corpus_documents]
-
-    # Create dictionary of word-tf pairs for the given text corpus
-    corpus_tf_dict = defaultdict(int)    # Initialize dictionary that assigns the default value 0 to non-existing keys
-    for corpus_text in corpus_texts:
-        for token in corpus_text:
-            corpus_tf_dict[token] += 1
-    print("Dictionary of word-tf pairs for the given text corpus:", corpus_tf_dict)
-
-    # Create gensim.corpora.Dictionary to map a unique integer word_id to each word in corpus_texts
-    dictionary = corpora.Dictionary(corpus_texts)
-
-    # Create gensim corpus of corpus_texts by converting it into bag-of-words (bow) format /
-    # a list of (word_id, tf) tuples / a list of vectors.
-    corpus_bow = [dictionary.doc2bow(corpus_text) for corpus_text in corpus_texts]
-
-    ###### CREATING THE QUERY DOCUMENT ######
-    # Create gensim corpus of query_document by lowercasing, tokenizing, and converting it
-    # into bag-of-words (bow) format / a list of (word_id, tf) tuples / a list of vectors.
-    query_bow = dictionary.doc2bow(query_document.lower().split())
-
-    ### CREATING A TRANSFORMATION MODEL ###
-
-    # Create TfidModel using the corpus_bow to transform vectors from bow representation to a vector space,
-    # in which words that occur frequently across the documents in the text corpus are down-weighted,
-    # and rarely occurring words are up-weighted.
-    tf_idf = models.TfidfModel(corpus_bow)
-
-    ### PREPARING FOR SIMILARITY QUERIES ###
-
-    # Use the tf-idf model to transform the corpus_bow and initialize an index for it to prepare for similarity queries.
-    index_tmpfile = get_tmpfile("index")    # Full path for output_prefix to store index matrix in.
-    index = similarities.Similarity(index_tmpfile, tf_idf[corpus_bow], len(dictionary))
-
-    ### PERFORMING SIMILARITY QUERIES ###
-
-    # Query for document similarity between the query document and each index document of the corpus.
-    sims_query_vs_corpus = index[tf_idf[query_bow]]
-
-    # Sort document similarities in descending order and print.
-    print("Document similarities between the query document and each index document of the text corpus (0.0 = 0% similar, 1.0 = 100% similar) (descending order):")
-    for doc_pos, doc_sim in sorted(enumerate(sims_query_vs_corpus), key=lambda x: x[1], reverse=True):
-        print(doc_pos, doc_sim)
-
-
-### CALLING THE FUNCTION ###
-# To call the function, please provide it with arguments for the two required parameters.
-
-# A text corpus, represented as a list of strings.
-corpus_documents = []
-
-# A text document serving as a search document, represented as a string.
-query_document = ""
-
-# Call the function
-TextDocumentSimilarity(corpus_documents, query_document)
